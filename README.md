@@ -200,6 +200,7 @@ Since this data source is unofficial and undocumented, it could change without n
 The integration is designed to be a considerate user of the lightsouts.com infrastructure:
 
 - **Concurrency limit** — at most 4 series are fetched in parallel per refresh, instead of bursting all 19 simultaneously
+- **Fetch only selected series** — only the series you have chosen are downloaded; the full series index is never fetched after setup
 - **ETag / conditional requests** — each response's ETag is cached and sent back as `If-None-Match` on the next refresh; when the API replies `304 Not Modified` the previous payload is reused, so most refreshes transfer almost nothing
 - **Sensible default interval** — the 3 hour default is well above the API's `max-age=900` cache window, so requests are mostly served from Cloudflare's edge rather than the origin
 
