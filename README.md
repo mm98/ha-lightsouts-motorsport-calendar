@@ -199,11 +199,11 @@ Since this data source is unofficial and undocumented, it could change without n
 
 The integration is designed to be a considerate user of the lightsouts.com infrastructure:
 
-- **Concurrency limit** — at most 4 series are fetched at the same time, rather than all 19 simultaneously
-- **Conditional fetching** — each response is cached and a freshness tag is sent on the next refresh; if the data hasn't changed the server responds with a tiny confirmation instead of re-sending the full payload, so most refreshes transfer almost nothing
-- **Sensible default interval** — the 3 hour default is well above the server's own cache window, so requests are mostly served from the edge rather than hitting the origin
+- **Concurrency limit** — at most 4 series are downloaded at the same time, rather than all 19 simultaneously
+- **Change detection** — the server is asked whether the data has changed since the last refresh; if nothing has changed it replies with a tiny confirmation instead of re-sending the full schedule, so most refreshes transfer almost nothing
+- **Sensible default interval** — the 3 hour default means the schedule is checked far less often than the server updates it, so most requests are served from a nearby cache rather than the origin server
 
-Net result: roughly 800 KB/day of traffic (one full download, then mostly near-zero confirmations).
+Net result: roughly 800 KB/day of traffic (one full download on the first refresh, then mostly near-zero confirmations).
 
 ## Credits
 
