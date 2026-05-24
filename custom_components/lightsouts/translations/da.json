@@ -8,10 +8,12 @@
           "series": "Serier der skal medtages",
           "session_types": "Sessionstyper der skal medtages",
           "update_interval_hours": "Opdateringsinterval (timer)",
-          "title_template": "Skabelon til begivenhedstitel"
+          "title_template": "Skabelon til begivenhedstitel",
+          "description_template": "Skabelon til begivenhedsbeskrivelse"
         },
         "data_description": {
-          "title_template": "Tilgængelige variabler: '{series}', '{series_full}', '{event}', '{session}', '{circuit}', '{country}', '{category}'"
+          "title_template": "Pladsholdere: series, series_full, event, session, circuit, country, location, category",
+          "description_template": "Pladsholdere: series, series_full, series_slug, event, event_slug, session, circuit, country, location, category. Én linje pr. felt; linjer uden værdi skjules automatisk."
         }
       }
     },
@@ -29,10 +31,12 @@
           "series": "Serier der skal medtages",
           "session_types": "Sessionstyper der skal medtages",
           "update_interval_hours": "Opdateringsinterval (timer)",
-          "title_template": "Skabelon til begivenhedstitel"
+          "title_template": "Skabelon til begivenhedstitel",
+          "description_template": "Skabelon til begivenhedsbeskrivelse"
         },
         "data_description": {
-          "title_template": "Tilgængelige variabler: '{series}', '{series_full}', '{event}', '{session}', '{circuit}', '{country}', '{category}'"
+          "title_template": "Pladsholdere: series, series_full, event, session, circuit, country, location, category",
+          "description_template": "Pladsholdere: series, series_full, series_slug, event, event_slug, session, circuit, country, location, category. Én linje pr. felt; linjer uden værdi skjules automatisk."
         }
       }
     },
