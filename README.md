@@ -101,7 +101,7 @@ If you want only Sunday races, pick **Race** and **Sprint** (or just **Race** if
 
 `binary_sensor.lightsouts_active_session` is `on` for the exact duration of a live session and `off` at all other times. State transitions are scheduled at the precise start and end time of each session — they do not depend on the coordinator refresh cycle.
 
-When `on`, the following attributes are available:
+Attributes are always populated — with the active session when `on`, or the next upcoming session when `off`. The `start` and `end` values indicate which session is shown.
 
 | Attribute | Description |
 |---|---|
