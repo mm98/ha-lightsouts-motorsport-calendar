@@ -54,6 +54,7 @@ All settings can be changed later via **Settings → Devices & Services → Ligh
 | **Session types to include** | Practice / Qualifying / Sprint / Race / Other |
 | **Refresh interval (hours)** | How often the calendar checks for updates (1–168, default 3) |
 | **Event title template** | Customise the title of each calendar event using placeholders (see below) |
+| **Event description template** | Customise the detail text shown when you open an event (see below) |
 
 ### Event title template
 
@@ -82,6 +83,21 @@ Unrecognised placeholders are ignored, so you can experiment freely. More exampl
 {series_full} — {event} ({session})
 {session} @ {circuit}, {country}
 ```
+
+### Event description template
+
+The detail text shown when you open a calendar event is also configurable. The default is:
+
+```
+Series: {series_full}
+Event: {event}
+Session: {session}
+Category: {category}
+Location: {location}
+Source: https://lightsouts.com/{series_slug}
+```
+
+The same placeholders are available as for the title, plus `{series_slug}` and `{event_slug}`. Lines where a placeholder has no value (e.g. `Location:` when no circuit is known) are hidden automatically.
 
 ### Session type classification
 
