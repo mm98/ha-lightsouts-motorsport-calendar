@@ -199,11 +199,11 @@ Since this data source is unofficial and undocumented, it could change without n
 
 The integration is designed to be a considerate user of the lightsouts.com infrastructure:
 
-- **Concurrency limit** — at most 4 series are downloaded at the same time, rather than all 19 simultaneously
-- **Change detection** — the server is asked whether the data has changed since the last refresh; if nothing has changed it replies with a tiny confirmation instead of re-sending the full schedule, so most refreshes transfer almost nothing
-- **Sensible default interval** — the 3 hour default means the schedule is checked far less often than the server updates it, so most requests are served from a nearby cache rather than the origin server
+- **Concurrency limit** — at most 4 series are fetched in parallel per refresh, instead of bursting all 19 simultaneously
+- **ETag / conditional requests** — each response's ETag is cached and sent back as `If-None-Match` on the next refresh; when the API replies `304 Not Modified` the previous payload is reused, so most refreshes transfer almost nothing
+- **Sensible default interval** — the 3 hour default is well above the API's `max-age=900` cache window, so requests are mostly served from Cloudflare's edge rather than the origin
 
-Net result: roughly 800 KB/day of traffic (one full download on the first refresh, then mostly near-zero confirmations).
+Net result: roughly 800 KB/day of traffic (one full download on the first refresh, then mostly `304`s).
 
 ## Credits
 
