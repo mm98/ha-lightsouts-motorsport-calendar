@@ -7,7 +7,11 @@
         "data": {
           "series": "Serier der skal medtages",
           "session_types": "Sessionstyper der skal medtages",
-          "update_interval_hours": "Opdateringsinterval (timer)"
+          "update_interval_hours": "Opdateringsinterval (timer)",
+          "title_template": "Skabelon til begivenhedstitel"
+        },
+        "data_description": {
+          "title_template": "Tilgængelige variabler: '{series}', '{series_full}', '{event}', '{session}', '{circuit}', '{country}', '{category}'"
         }
       }
     },
@@ -24,7 +28,11 @@
         "data": {
           "series": "Serier der skal medtages",
           "session_types": "Sessionstyper der skal medtages",
-          "update_interval_hours": "Opdateringsinterval (timer)"
+          "update_interval_hours": "Opdateringsinterval (timer)",
+          "title_template": "Skabelon til begivenhedstitel"
+        },
+        "data_description": {
+          "title_template": "Tilgængelige variabler: '{series}', '{series_full}', '{event}', '{session}', '{circuit}', '{country}', '{category}'"
         }
       }
     },
