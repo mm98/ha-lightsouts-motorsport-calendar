@@ -8,10 +8,12 @@
           "series": "Series to include",
           "session_types": "Session types to include",
           "update_interval_hours": "Refresh interval (hours)",
-          "title_template": "Event summary template"
+          "title_template": "Event title template",
+          "description_template": "Event description template"
         },
         "data_description": {
-          "title_template": "Available variables: '{series}', '{series_full}', '{event}', '{session}', '{circuit}', '{country}', '{category}'"
+          "title_template": "Placeholders: series, series_full, event, session, circuit, country, location, category",
+          "description_template": "Placeholders: series, series_full, series_slug, event, event_slug, session, circuit, country, location, category. One line per field; lines with no value are hidden automatically."
         }
       }
     },
@@ -29,10 +31,12 @@
           "series": "Series to include",
           "session_types": "Session types to include",
           "update_interval_hours": "Refresh interval (hours)",
-          "title_template": "Event summary template"
+          "title_template": "Event title template",
+          "description_template": "Event description template"
         },
         "data_description": {
-          "title_template": "Available variables: '{series}', '{series_full}', '{event}', '{session}', '{circuit}', '{country}', '{category}'"
+          "title_template": "Placeholders: series, series_full, event, session, circuit, country, location, category",
+          "description_template": "Placeholders: series, series_full, series_slug, event, event_slug, session, circuit, country, location, category. One line per field; lines with no value are hidden automatically."
         }
       }
     },

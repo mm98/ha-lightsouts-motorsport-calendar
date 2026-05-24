@@ -23,10 +23,20 @@ CONF_SERIES = "series"
 CONF_SESSION_TYPES = "session_types"
 CONF_UPDATE_INTERVAL_HOURS = "update_interval_hours"
 CONF_TITLE_TEMPLATE = "title_template"
+CONF_DESCRIPTION_TEMPLATE = "description_template"
 
-# Variables available to the title template: {series}, {series_full}, {event},
-# {session}, {circuit}, {country}, {category}
+# Placeholders available in both templates:
+# {series}, {series_full}, {series_slug}, {event}, {event_slug},
+# {session}, {circuit}, {country}, {location}, {category}
 DEFAULT_TITLE_TEMPLATE = "{series}: {circuit} ({country})"
+DEFAULT_DESCRIPTION_TEMPLATE = (
+    "Series: {series_full}\n"
+    "Event: {event}\n"
+    "Session: {session}\n"
+    "Category: {category}\n"
+    "Location: {location}\n"
+    "Source: https://lightsouts.com/{series_slug}"
+)
 
 SESSION_TYPE_PRACTICE = "practice"
 SESSION_TYPE_QUALIFYING = "qualifying"

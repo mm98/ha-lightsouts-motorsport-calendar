@@ -12,7 +12,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .const import CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE, DOMAIN
+from .const import (
+    CONF_DESCRIPTION_TEMPLATE,
+    CONF_TITLE_TEMPLATE,
+    DEFAULT_DESCRIPTION_TEMPLATE,
+    DEFAULT_TITLE_TEMPLATE,
+    DOMAIN,
+)
 
 if TYPE_CHECKING:
     from .coordinator import LightsoutsCoordinator, Session
@@ -55,12 +61,21 @@ class LightsoutsCalendar(CoordinatorEntity["LightsoutsCoordinator"], CalendarEnt
         )
 
     @property
+    def _description_template(self) -> str:
+        return self._entry.options.get(
+            CONF_DESCRIPTION_TEMPLATE,
+            self._entry.data.get(CONF_DESCRIPTION_TEMPLATE, DEFAULT_DESCRIPTION_TEMPLATE),
+        )
+
+    @property
     def event(self) -> CalendarEvent | None:
         """The next upcoming (or currently running) session."""
         now = dt_util.utcnow()
         for session in self.coordinator.data or []:
             if session.end >= now:
-                return _to_calendar_event(session, self._title_template)
+                return _to_calendar_event(
+                    session, self._title_template, self._description_template
+                )
         return None
 
     async def async_get_events(
@@ -72,9 +87,10 @@ class LightsoutsCalendar(CoordinatorEntity["LightsoutsCoordinator"], CalendarEnt
         """Return sessions overlapping the given window."""
         start_utc = dt_util.as_utc(start_date)
         end_utc = dt_util.as_utc(end_date)
-        tmpl = self._title_template
+        title_tmpl = self._title_template
+        desc_tmpl = self._description_template
         return [
-            _to_calendar_event(s, tmpl)
+            _to_calendar_event(s, title_tmpl, desc_tmpl)
             for s in self.coordinator.data or []
             if s.end > start_utc and s.start < end_utc
         ]
@@ -92,39 +108,52 @@ class _SafeDict(dict):
         return ""
 
 
-def _format_title(template: str, session: Session) -> str:
-    """Render the user's title template, substituting known variables.
-
-    Unknown variables resolve to ""; malformed templates fall back to the default.
-    """
-    variables = _SafeDict({
+def _build_variables(session: Session) -> _SafeDict:
+    location_parts = [p for p in (session.circuit, session.country) if p]
+    return _SafeDict({
         "series":       session.series_short  or "",
         "series_full":  session.series_name   or "",
+        "series_slug":  session.series_slug   or "",
         "event":        session.event_name    or "",
+        "event_slug":   session.event_slug    or "",
         "session":      session.session_name  or "",
         "circuit":      session.circuit       or "",
         "country":      session.country       or "",
+        "location":     ", ".join(location_parts),
         "category":     session.category.title() if session.category else "",
     })
+
+
+def _format_title(template: str, session: Session) -> str:
+    """Render the title template; unknown placeholders resolve to empty string."""
+    variables = _build_variables(session)
     try:
         return template.format_map(variables).strip()
     except (ValueError, KeyError, IndexError):
         return DEFAULT_TITLE_TEMPLATE.format_map(variables).strip()
 
 
-def _to_calendar_event(session: Session, title_template: str) -> CalendarEvent:
+def _format_description(template: str, session: Session) -> str:
+    """Render the description template; drop lines whose value resolved to empty."""
+    variables = _build_variables(session)
+    try:
+        text = template.format_map(variables)
+    except (ValueError, KeyError, IndexError):
+        text = DEFAULT_DESCRIPTION_TEMPLATE.format_map(variables)
+    lines = [
+        ln for ln in text.splitlines()
+        if ln.strip() and not ln.strip().endswith(":")
+    ]
+    return "\n".join(lines)
+
+
+def _to_calendar_event(
+    session: Session, title_template: str, description_template: str
+) -> CalendarEvent:
     summary = _format_title(title_template, session)
+    description = _format_description(description_template, session)
     location_parts = [p for p in (session.circuit, session.country) if p]
     location = ", ".join(location_parts) or None
-    description_lines = [
-        f"Series: {session.series_name}",
-        f"Event: {session.event_name}",
-        f"Session: {session.session_name}",
-        f"Category: {session.category.title() if session.category else ''}",
-    ]
-    if location:
-        description_lines.append(f"Location: {location}")
-    description_lines.append(f"Source: https://lightsouts.com/{session.series_slug}")
 
     if session.is_all_day:
         start = session.start.date()
@@ -136,7 +165,7 @@ def _to_calendar_event(session: Session, title_template: str) -> CalendarEvent:
             end=end_date,
             summary=summary,
             location=location,
-            description="\n".join(description_lines),
+            description=description,
             uid=session.uid,
         )
 
@@ -145,6 +174,6 @@ def _to_calendar_event(session: Session, title_template: str) -> CalendarEvent:
         end=session.end,
         summary=summary,
         location=location,
-        description="\n".join(description_lines),
+        description=description,
         uid=session.uid,
     )

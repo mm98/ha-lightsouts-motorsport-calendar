@@ -26,10 +26,12 @@ from homeassistant.helpers.selector import (
 from .const import (
     ALL_SESSION_TYPES,
     API_SERIES_INDEX,
+    CONF_DESCRIPTION_TEMPLATE,
     CONF_SERIES,
     CONF_SESSION_TYPES,
     CONF_TITLE_TEMPLATE,
     CONF_UPDATE_INTERVAL_HOURS,
+    DEFAULT_DESCRIPTION_TEMPLATE,
     DEFAULT_SESSION_TYPES,
     DEFAULT_TITLE_TEMPLATE,
     DEFAULT_UPDATE_INTERVAL_HOURS,
@@ -84,6 +86,10 @@ def _title_template_selector() -> TextSelector:
     return TextSelector(TextSelectorConfig())
 
 
+def _description_template_selector() -> TextSelector:
+    return TextSelector(TextSelectorConfig(multiline=True))
+
+
 def _session_type_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
@@ -125,6 +131,9 @@ class LightsoutsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_TITLE_TEMPLATE: user_input.get(
                         CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE
                     ),
+                    CONF_DESCRIPTION_TEMPLATE: user_input.get(
+                        CONF_DESCRIPTION_TEMPLATE, DEFAULT_DESCRIPTION_TEMPLATE
+                    ),
                 },
             )
 
@@ -144,6 +153,9 @@ class LightsoutsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(
                     CONF_TITLE_TEMPLATE, default=DEFAULT_TITLE_TEMPLATE
                 ): _title_template_selector(),
+                vol.Optional(
+                    CONF_DESCRIPTION_TEMPLATE, default=DEFAULT_DESCRIPTION_TEMPLATE
+                ): _description_template_selector(),
             }
         )
         return self.async_show_form(step_id="user", data_schema=schema)
@@ -182,6 +194,9 @@ class LightsoutsOptionsFlow(OptionsFlow):
                     CONF_TITLE_TEMPLATE: user_input.get(
                         CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE
                     ),
+                    CONF_DESCRIPTION_TEMPLATE: user_input.get(
+                        CONF_DESCRIPTION_TEMPLATE, DEFAULT_DESCRIPTION_TEMPLATE
+                    ),
                 },
             )
 
@@ -207,6 +222,12 @@ class LightsoutsOptionsFlow(OptionsFlow):
                     CONF_TITLE_TEMPLATE,
                     default=current.get(CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE),
                 ): _title_template_selector(),
+                vol.Optional(
+                    CONF_DESCRIPTION_TEMPLATE,
+                    default=current.get(
+                        CONF_DESCRIPTION_TEMPLATE, DEFAULT_DESCRIPTION_TEMPLATE
+                    ),
+                ): _description_template_selector(),
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)
