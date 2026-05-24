@@ -26,7 +26,7 @@ CONF_TITLE_TEMPLATE = "title_template"
 
 # Variables available to the title template: {series}, {series_full}, {event},
 # {session}, {circuit}, {country}, {category}
-DEFAULT_TITLE_TEMPLATE = "{series} - {event}: {session}"
+DEFAULT_TITLE_TEMPLATE = "{series}: {circuit} ({country})"
 
 SESSION_TYPE_PRACTICE = "practice"
 SESSION_TYPE_QUALIFYING = "qualifying"
