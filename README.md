@@ -1,24 +1,24 @@
 # Lightsouts Motorsport Calendar — Home Assistant integration
 
-Adds motorsport events from [lightsouts.com](https://lightsouts.com/) to Home Assistant as a calendar entity and an active-session binary sensor.
+Adds motorsport events from [lightsouts.com](https://lightsouts.com/) to Home Assistant as a calendar and a live-session sensor.
 
 F1, MotoGP, WRC, IndyCar, NASCAR, WEC, Formula E, IMSA, Supercars, DTM, Superbike, Moto2/3, F1 Academy, F2, F3, Indy NXT, NASCAR Truck, NASCAR O'Reilly — 19 series, ~750 sessions per season.
 
 ## Features
 
-- **One calendar entity** (`calendar.lightsouts`) merging every series you pick
-- **Active-session binary sensor** (`binary_sensor.lightsouts_active_session`) — `on` while a session is live, with full session detail as attributes
+- **Calendar** (`calendar.lightsouts`) — all sessions from every series you pick, in one place
+- **Live-session sensor** (`binary_sensor.lightsouts_active_session`) — turns on while a session is live and always shows the current or next session's details
 - **Per-series filtering** — choose any subset of the 19 available series
 - **Per-session-type filtering** — Practice, Qualifying, Sprint, Race, Other
-- **Customisable event summary template** — build the calendar event title from any combination of series, event, session, circuit, and more
+- **Customisable event title** — build the calendar event title from any combination of series, event, session, circuit, and more
 - **Sensible rendering of multi-day rallies** — WRC events show as all-day banners spanning the rally weekend; continuous endurance races (Le Mans 24h, Petit Le Mans 10h) stay as timed events
 - **Configurable refresh interval** (1–168 hours, default 3h)
-- **Times in your local timezone** — Home Assistant converts the API's UTC times to whatever your HA instance is set to
+- **Times in your local timezone** — Home Assistant converts UTC times to whatever your HA instance is set to
 - **Available in English and Danish**
 
 ## Requirements
 
-- Home Assistant 2024.1 or newer (uses modern `ConfigFlowResult`, `OptionsFlow`, selectors)
+- Home Assistant 2024.1 or newer
 
 ## Installation
 
@@ -38,9 +38,9 @@ F1, MotoGP, WRC, IndyCar, NASCAR, WEC, Formula E, IMSA, Supercars, DTM, Superbik
 
 1. **Settings → Devices & Services → Add Integration**
 2. Search for **Lightsouts**
-3. Pick the series and session types you want, set the refresh interval, and optionally customise the event summary template; save
+3. Pick the series and session types you want, set the refresh interval, and optionally customise the event title; save
 
-Two entities will appear under the **Lightsouts** device:
+Two items will appear under the **Lightsouts** device:
 - `calendar.lightsouts` — add to a Calendar dashboard card to see upcoming races
 - `binary_sensor.lightsouts_active_session` — use in automations to react when a session goes live
 
@@ -50,22 +50,22 @@ All settings can be changed later via **Settings → Devices & Services → Ligh
 
 | Option | Description |
 |---|---|
-| **Series to include** | Multi-select of the 19 available series; defaults to all |
+| **Series to include** | Choose which of the 19 series to show; defaults to all |
 | **Session types to include** | Practice / Qualifying / Sprint / Race / Other |
-| **Refresh interval (hours)** | How often the integration polls the API (1–168, default 3) |
-| **Event summary template** | Python `str.format_map` template for the calendar event title (see below) |
+| **Refresh interval (hours)** | How often the calendar checks for updates (1–168, default 3) |
+| **Event title template** | Customise the title of each calendar event using placeholders (see below) |
 
-### Event summary template
+### Event title template
 
-The title of each calendar event is built from a configurable template. The default is:
+The title of each calendar event is built from a pattern you define. The default is:
 
 ```
 {series}: {circuit} ({country})
 ```
 
-Available variables:
+Available placeholders:
 
-| Variable | Example |
+| Placeholder | Example |
 |---|---|
 | `{series}` | `F1` |
 | `{series_full}` | `Formula 1` |
@@ -75,7 +75,7 @@ Available variables:
 | `{country}` | `Monaco` |
 | `{category}` | `Race` |
 
-Unknown variables are silently replaced with an empty string, so you can safely experiment. Example templates:
+Unrecognised placeholders are ignored, so you can experiment freely. More examples:
 
 ```
 {series} | {circuit}: {session}
@@ -85,43 +85,43 @@ Unknown variables are silently replaced with an empty string, so you can safely 
 
 ### Session type classification
 
-Each session is classified into exactly one bucket:
+Each session falls into one of these categories:
 
-| Bucket | Includes |
+| Category | Includes |
 |---|---|
 | **Practice** | Free Practice 1–4, Practice 1–8, Warm Up |
 | **Qualifying** | Qualifying 1–3, Qualifications 1–2, Sprint Qualifying, Superpole, Hyperpole, Top 10 Shootout |
 | **Sprint** | Sprint, Sprint Race, Superpole Race |
 | **Race** | Race 1–3, Feature Race, Opening Race, Reverse Grid Race, Rally |
-| **Other** | Fallback for any future name; currently empty |
+| **Other** | Anything that doesn't match the above |
 
 If you want only Sunday races, pick **Race** and **Sprint** (or just **Race** if you skip sprint weekends).
 
-## Active-session binary sensor
+## Live-session sensor
 
-`binary_sensor.lightsouts_active_session` is `on` for the exact duration of a live session and `off` at all other times. State transitions are scheduled at the precise start and end time of each session — they do not depend on the coordinator refresh cycle.
+`binary_sensor.lightsouts_active_session` turns on for the exact duration of a live session and off at all other times. It reacts at the precise start and end time of each session, not just when the calendar refreshes.
 
-Attributes are always populated — with the active session when `on`, or the next upcoming session when `off`. The `start` and `end` values indicate which session is shown.
+The sensor always shows details — the current session when on, or the next upcoming session when off. The `start` and `end` values indicate which session is shown.
 
-| Attribute | Description |
+| Detail | Description |
 |---|---|
 | `series` | Short series name (e.g. `F1`) |
 | `series_full` | Full series name (e.g. `Formula 1`) |
-| `series_slug` | API slug (e.g. `formula-1`) |
+| `series_slug` | Internal series identifier (e.g. `formula-1`) |
 | `event` | Event/round name |
-| `event_slug` | API slug for the event |
+| `event_slug` | Internal event identifier |
 | `session` | Session name (e.g. `Race`) |
 | `circuit` | Circuit name |
 | `country` | Host country |
 | `category` | `Practice`, `Qualifying`, `Sprint`, `Race`, or `Other` |
-| `start` | Session start time (ISO-8601 UTC) |
-| `end` | Session end time (ISO-8601 UTC) |
-| `uid` | Stable unique identifier for the session |
+| `start` | Session start time (UTC) |
+| `end` | Session end time (UTC) |
+| `uid` | Unique identifier for the session |
 | `is_main` | `true` if this is the headline session of the event |
 
 ### Example automations
 
-**Notify when any race starts** (calendar trigger — fires at the exact start time):
+**Notify when any race starts** (fires at the exact start time):
 
 ```yaml
 trigger:
@@ -138,7 +138,7 @@ action:
       message: "{{ trigger.calendar_event.summary }}"
 ```
 
-**Turn on a scene while an F1 race is live** (binary sensor — stays `on` for the session duration):
+**Turn on a scene while an F1 race is live** (stays active for the full session duration):
 
 ```yaml
 trigger:
@@ -170,24 +170,24 @@ action:
 
 ## How it works
 
-The integration polls an unadvertised JSON API at `https://api.lightsouts.com/v1` (discovered by inspecting the lightsouts.com web app). The endpoints used are:
+The integration fetches schedule data from `https://api.lightsouts.com/v1` (the same data source the lightsouts.com website uses). Two endpoints are used:
 
-- `GET /series` — list of available motorsport series
-- `GET /series/{slug}` — full season schedule for a series
+- `/series` — the list of available motorsport series
+- `/series/{slug}` — the full season schedule for a given series
 
-Sessions are merged, classified, optionally filtered, and exposed as Home Assistant `CalendarEvent` objects (calendar entity) and live state with attributes (binary sensor).
+Sessions are merged, classified, and filtered according to your options, then shown in the calendar and live-session sensor.
 
-Since the API is undocumented, it could change without notice. If it does, please open an issue.
+Since this data source is unofficial and undocumented, it could change without notice. If it stops working, please open an issue.
 
-### Being a polite API citizen
+### Network efficiency
 
-The integration takes care to minimise load on the lightsouts.com infrastructure:
+The integration is designed to be a considerate user of the lightsouts.com infrastructure:
 
-- **Limited concurrency** — at most 4 series are fetched in parallel per refresh, instead of bursting all 19 simultaneously
-- **Conditional requests** — `ETag` is cached per URL and sent back as `If-None-Match` on the next refresh; when the API replies `304 Not Modified` we keep the previous payload, so almost every refresh after the first is zero-body
-- **Cloudflare-friendly defaults** — the 3 hour default refresh interval is far above the API's `max-age=900` cache window, so we don't trigger cache misses unnecessarily
+- **Concurrency limit** — at most 4 series are fetched at the same time, rather than all 19 simultaneously
+- **Conditional fetching** — each response is cached and a freshness tag is sent on the next refresh; if the data hasn't changed the server responds with a tiny confirmation instead of re-sending the full payload, so most refreshes transfer almost nothing
+- **Sensible default interval** — the 3 hour default is well above the server's own cache window, so requests are mostly served from the edge rather than hitting the origin
 
-Net result: roughly 800 KB/day of traffic (a single full payload, then mostly `304`s), almost all of it served from Cloudflare's edge cache rather than the origin.
+Net result: roughly 800 KB/day of traffic (one full download, then mostly near-zero confirmations).
 
 ## Credits
 
