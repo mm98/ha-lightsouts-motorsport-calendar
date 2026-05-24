@@ -60,7 +60,7 @@ All settings can be changed later via **Settings → Devices & Services → Ligh
 The title of each calendar event is built from a configurable template. The default is:
 
 ```
-{series} - {event}: {session}
+{series}: {circuit} ({country})
 ```
 
 Available variables:
