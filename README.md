@@ -10,7 +10,7 @@ F1, MotoGP, WRC, IndyCar, NASCAR, WEC, Formula E, IMSA, Supercars, DTM, Superbik
 - **Live-session sensor** (`binary_sensor.lightsouts_active_session`) — turns on while a session is live and always shows the current or next session's details
 - **Per-series filtering** — choose any subset of the 19 available series
 - **Per-session-type filtering** — Practice, Qualifying, Sprint, Race, Other
-- **Customisable event title** — build the calendar event title from any combination of series, event, session, circuit, and more
+- **Customisable event title and description** — build the calendar event title and detail text from any combination of series, event, session, circuit, and more
 - **Sensible rendering of multi-day rallies** — WRC events show as all-day banners spanning the rally weekend; continuous endurance races (Le Mans 24h, Petit Le Mans 10h) stay as timed events
 - **Configurable refresh interval** (1–168 hours, default 3h)
 - **Times in your local timezone** — Home Assistant converts UTC times to whatever your HA instance is set to
