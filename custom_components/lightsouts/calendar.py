@@ -104,7 +104,7 @@ def _format_title(template: str, session: Session) -> str:
         "session":      session.session_name  or "",
         "circuit":      session.circuit       or "",
         "country":      session.country       or "",
-        "category":     session.category      or "",
+        "category":     session.category.title() if session.category else "",
     })
     try:
         return template.format_map(variables).strip()
