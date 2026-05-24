@@ -59,6 +59,13 @@ class LightsoutsActiveSensor(
                 return session
         return None
 
+    def _next_session(self) -> Session | None:
+        now = dt_util.utcnow()
+        for session in self.coordinator.data or []:
+            if session.start > now:
+                return session
+        return None
+
     def _next_change(self) -> datetime | None:
         """Nearest future session start or end, to know when to flip state."""
         now = dt_util.utcnow()
@@ -76,7 +83,7 @@ class LightsoutsActiveSensor(
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
-        session = self._active_session()
+        session = self._active_session() or self._next_session()
         if session is None:
             return None
         return {
