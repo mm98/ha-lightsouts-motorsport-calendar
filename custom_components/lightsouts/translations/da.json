@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lightsouts motorsportkalender",
+        "description": "Vælg de serier og sessionstyper, du vil have i din Home Assistant-kalender.",
+        "data": {
+          "series": "Serier der skal medtages",
+          "session_types": "Sessionstyper der skal medtages",
+          "update_interval_hours": "Opdateringsinterval (timer)"
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Lightsouts er allerede konfigureret.",
+      "cannot_connect": "Kunne ikke nå api.lightsouts.com. Tjek din internetforbindelse og prøv igen."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Lightsouts-indstillinger",
+        "description": "Ændr hvilke serier og sessionstyper der inkluderes, eller hvor ofte kalenderen opdateres.",
+        "data": {
+          "series": "Serier der skal medtages",
+          "session_types": "Sessionstyper der skal medtages",
+          "update_interval_hours": "Opdateringsinterval (timer)"
+        }
+      }
+    },
+    "abort": {
+      "cannot_connect": "Kunne ikke nå api.lightsouts.com. Tjek din internetforbindelse og prøv igen."
+    }
+  },
+  "selector": {
+    "session_types": {
+      "options": {
+        "practice": "Træning og warm-up",
+        "qualifying": "Kvalifikation (inkl. Superpole, Shootouts, Sprint Qualifying)",
+        "sprint": "Sprintløb",
+        "race": "Løb / Feature Race / Rally",
+        "other": "Andet"
+      }
+    }
+  }
+}

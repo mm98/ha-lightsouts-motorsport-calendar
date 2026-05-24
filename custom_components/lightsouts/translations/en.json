@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Lightsouts motorsport calendar",
+        "description": "Pick the series and session types you want in your Home Assistant calendar.",
+        "data": {
+          "series": "Series to include",
+          "session_types": "Session types to include",
+          "update_interval_hours": "Refresh interval (hours)"
+        }
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Lightsouts is already configured.",
+      "cannot_connect": "Could not reach api.lightsouts.com. Check your internet connection and try again."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Lightsouts options",
+        "description": "Change which series and session types are included, or how often the calendar refreshes.",
+        "data": {
+          "series": "Series to include",
+          "session_types": "Session types to include",
+          "update_interval_hours": "Refresh interval (hours)"
+        }
+      }
+    },
+    "abort": {
+      "cannot_connect": "Could not reach api.lightsouts.com. Check your internet connection and try again."
+    }
+  },
+  "selector": {
+    "session_types": {
+      "options": {
+        "practice": "Practice & warm-up",
+        "qualifying": "Qualifying (incl. Superpole, Shootouts, Sprint Qualifying)",
+        "sprint": "Sprint races",
+        "race": "Race / Feature Race / Rally",
+        "other": "Other"
+      }
+    }
+  }
+}
