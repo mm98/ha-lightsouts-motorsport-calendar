@@ -132,7 +132,7 @@ condition:
   - condition: template
     value_template: >
       {{ state_attr('binary_sensor.lightsouts_active_session', 'series') == 'F1'
-         and state_attr('binary_sensor.lightsouts_active_session', 'category') == 'race' }}
+         and state_attr('binary_sensor.lightsouts_active_session', 'category') == 'Race' }}
 action:
   - scene: scene.race_mode
 ```
