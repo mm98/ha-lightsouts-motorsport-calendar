@@ -120,6 +120,7 @@ def _to_calendar_event(session: Session, title_template: str) -> CalendarEvent:
         f"Series: {session.series_name}",
         f"Event: {session.event_name}",
         f"Session: {session.session_name}",
+        f"Category: {session.category.title() if session.category else ''}",
     ]
     if location:
         description_lines.append(f"Location: {location}")
