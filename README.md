@@ -121,7 +121,24 @@ When `on`, the following attributes are available:
 
 ### Example automations
 
-Turn on a "race mode" scene when an F1 race starts:
+**Notify when any race starts** (calendar trigger — fires at the exact start time):
+
+```yaml
+trigger:
+  - platform: calendar
+    entity_id: calendar.lightsouts
+    event: start
+condition:
+  - condition: template
+    value_template: "{{ 'Category: Race' in trigger.calendar_event.description }}"
+action:
+  - service: notify.mobile_app_your_phone
+    data:
+      title: "🏁 Race starting"
+      message: "{{ trigger.calendar_event.summary }}"
+```
+
+**Turn on a scene while an F1 race is live** (binary sensor — stays `on` for the session duration):
 
 ```yaml
 trigger:
@@ -137,7 +154,7 @@ action:
   - scene: scene.race_mode
 ```
 
-Send a notification when any live session ends:
+**Notify when a session ends**:
 
 ```yaml
 trigger:
@@ -146,7 +163,7 @@ trigger:
     from: "on"
     to: "off"
 action:
-  - service: notify.mobile_app
+  - service: notify.mobile_app_your_phone
     data:
       message: "Session over."
 ```
