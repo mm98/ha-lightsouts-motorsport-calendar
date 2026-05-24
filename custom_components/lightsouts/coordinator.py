@@ -22,12 +22,14 @@ from .const import (
     CONF_UPDATE_INTERVAL_HOURS,
     DEFAULT_UPDATE_INTERVAL_HOURS,
     DOMAIN,
+    MAX_CONCURRENT_REQUESTS,
     REQUEST_TIMEOUT,
     SESSION_TYPE_OTHER,
     SESSION_TYPE_PRACTICE,
     SESSION_TYPE_QUALIFYING,
     SESSION_TYPE_RACE,
     SESSION_TYPE_SPRINT,
+    USER_AGENT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -65,6 +67,11 @@ class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.entry = entry
         self._session = async_get_clientsession(hass)
+        self._semaphore = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
+        # ETag + payload cache so we can use If-None-Match and avoid
+        # re-downloading unchanged data on every refresh.
+        self._etag: dict[str, str] = {}
+        self._cached_payload: dict[str, Any] = {}
         hours = entry.options.get(
             CONF_UPDATE_INTERVAL_HOURS,
             entry.data.get(CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS),
@@ -121,17 +128,28 @@ class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
         return sessions
 
     async def _fetch_series_index(self) -> list[dict[str, Any]]:
-        async with asyncio.timeout(REQUEST_TIMEOUT):
-            async with self._session.get(API_SERIES_INDEX) as resp:
-                resp.raise_for_status()
-                return await resp.json()
+        return await self._fetch_json(API_SERIES_INDEX)
 
     async def _fetch_series(self, slug: str) -> dict[str, Any]:
-        url = API_SERIES_DETAIL.format(slug=slug)
-        async with asyncio.timeout(REQUEST_TIMEOUT):
-            async with self._session.get(url) as resp:
-                resp.raise_for_status()
-                return await resp.json()
+        return await self._fetch_json(API_SERIES_DETAIL.format(slug=slug))
+
+    async def _fetch_json(self, url: str) -> Any:
+        """GET a URL with concurrency limit, identifying UA, and ETag revalidation."""
+        headers = {"User-Agent": USER_AGENT, "Accept": "application/json"}
+        if etag := self._etag.get(url):
+            headers["If-None-Match"] = etag
+
+        async with self._semaphore:
+            async with asyncio.timeout(REQUEST_TIMEOUT):
+                async with self._session.get(url, headers=headers) as resp:
+                    if resp.status == 304 and url in self._cached_payload:
+                        return self._cached_payload[url]
+                    resp.raise_for_status()
+                    data = await resp.json()
+                    if new_etag := resp.headers.get("ETag"):
+                        self._etag[url] = new_etag
+                        self._cached_payload[url] = data
+                    return data
 
     @staticmethod
     def _flatten_series(payload: dict[str, Any]) -> list[Session]:
