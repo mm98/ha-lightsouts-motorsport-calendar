@@ -184,18 +184,7 @@ action:
       message: "Session over."
 ```
 
-## How it works
-
-The integration fetches schedule data from `https://api.lightsouts.com/v1` (the same data source the lightsouts.com website uses). Two endpoints are used:
-
-- `/series` — the list of available motorsport series
-- `/series/{slug}` — the full season schedule for a given series
-
-Sessions are merged, classified, and filtered according to your options, then shown in the calendar and live-session sensor.
-
-Since this data source is unofficial and undocumented, it could change without notice. If it stops working, please open an issue.
-
-### Network efficiency
+## Network efficiency
 
 The integration is designed to be a considerate user of the lightsouts.com infrastructure:
 
