@@ -22,6 +22,11 @@ USER_AGENT = (
 CONF_SERIES = "series"
 CONF_SESSION_TYPES = "session_types"
 CONF_UPDATE_INTERVAL_HOURS = "update_interval_hours"
+CONF_TITLE_TEMPLATE = "title_template"
+
+# Variables available to the title template: {series}, {series_full}, {event},
+# {session}, {circuit}, {country}, {category}
+DEFAULT_TITLE_TEMPLATE = "{series} - {event}: {session}"
 
 SESSION_TYPE_PRACTICE = "practice"
 SESSION_TYPE_QUALIFYING = "qualifying"

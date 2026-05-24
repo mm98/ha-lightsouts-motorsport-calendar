@@ -19,6 +19,8 @@ from homeassistant.helpers.selector import (
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
 )
 
 from .const import (
@@ -26,8 +28,10 @@ from .const import (
     API_SERIES_INDEX,
     CONF_SERIES,
     CONF_SESSION_TYPES,
+    CONF_TITLE_TEMPLATE,
     CONF_UPDATE_INTERVAL_HOURS,
     DEFAULT_SESSION_TYPES,
+    DEFAULT_TITLE_TEMPLATE,
     DEFAULT_UPDATE_INTERVAL_HOURS,
     DOMAIN,
     MAX_UPDATE_INTERVAL_HOURS,
@@ -76,6 +80,10 @@ def _series_selector(options: list[SelectOptionDict]) -> SelectSelector:
     )
 
 
+def _title_template_selector() -> TextSelector:
+    return TextSelector(TextSelectorConfig())
+
+
 def _session_type_selector() -> SelectSelector:
     return SelectSelector(
         SelectSelectorConfig(
@@ -114,6 +122,9 @@ class LightsoutsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_UPDATE_INTERVAL_HOURS: int(
                         user_input[CONF_UPDATE_INTERVAL_HOURS]
                     ),
+                    CONF_TITLE_TEMPLATE: user_input.get(
+                        CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE
+                    ),
                 },
             )
 
@@ -130,6 +141,9 @@ class LightsoutsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_UPDATE_INTERVAL_HOURS,
                     default=DEFAULT_UPDATE_INTERVAL_HOURS,
                 ): _interval_selector(),
+                vol.Optional(
+                    CONF_TITLE_TEMPLATE, default=DEFAULT_TITLE_TEMPLATE
+                ): _title_template_selector(),
             }
         )
         return self.async_show_form(step_id="user", data_schema=schema)
@@ -165,6 +179,9 @@ class LightsoutsOptionsFlow(OptionsFlow):
                     CONF_UPDATE_INTERVAL_HOURS: int(
                         user_input[CONF_UPDATE_INTERVAL_HOURS]
                     ),
+                    CONF_TITLE_TEMPLATE: user_input.get(
+                        CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE
+                    ),
                 },
             )
 
@@ -186,6 +203,10 @@ class LightsoutsOptionsFlow(OptionsFlow):
                         CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS
                     ),
                 ): _interval_selector(),
+                vol.Optional(
+                    CONF_TITLE_TEMPLATE,
+                    default=current.get(CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE),
+                ): _title_template_selector(),
             }
         )
         return self.async_show_form(step_id="init", data_schema=schema)

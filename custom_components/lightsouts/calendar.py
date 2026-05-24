@@ -12,7 +12,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN
+from .const import CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE, DOMAIN
 
 if TYPE_CHECKING:
     from .coordinator import LightsoutsCoordinator, Session
@@ -37,6 +37,7 @@ class LightsoutsCalendar(CoordinatorEntity["LightsoutsCoordinator"], CalendarEnt
 
     def __init__(self, coordinator: LightsoutsCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
+        self._entry = entry
         self._attr_unique_id = f"{entry.entry_id}_calendar"
         self._attr_device_info = DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
@@ -47,12 +48,19 @@ class LightsoutsCalendar(CoordinatorEntity["LightsoutsCoordinator"], CalendarEnt
         )
 
     @property
+    def _title_template(self) -> str:
+        return self._entry.options.get(
+            CONF_TITLE_TEMPLATE,
+            self._entry.data.get(CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE),
+        )
+
+    @property
     def event(self) -> CalendarEvent | None:
         """The next upcoming (or currently running) session."""
         now = dt_util.utcnow()
         for session in self.coordinator.data or []:
             if session.end >= now:
-                return _to_calendar_event(session)
+                return _to_calendar_event(session, self._title_template)
         return None
 
     async def async_get_events(
@@ -64,8 +72,9 @@ class LightsoutsCalendar(CoordinatorEntity["LightsoutsCoordinator"], CalendarEnt
         """Return sessions overlapping the given window."""
         start_utc = dt_util.as_utc(start_date)
         end_utc = dt_util.as_utc(end_date)
+        tmpl = self._title_template
         return [
-            _to_calendar_event(s)
+            _to_calendar_event(s, tmpl)
             for s in self.coordinator.data or []
             if s.end > start_utc and s.start < end_utc
         ]
@@ -76,8 +85,35 @@ class LightsoutsCalendar(CoordinatorEntity["LightsoutsCoordinator"], CalendarEnt
         super()._handle_coordinator_update()
 
 
-def _to_calendar_event(session: Session) -> CalendarEvent:
-    summary = f"{session.series_short} — {session.event_name}: {session.session_name}"
+class _SafeDict(dict):
+    """Return an empty string for any unknown template variable."""
+
+    def __missing__(self, key: str) -> str:
+        return ""
+
+
+def _format_title(template: str, session: Session) -> str:
+    """Render the user's title template, substituting known variables.
+
+    Unknown variables resolve to ""; malformed templates fall back to the default.
+    """
+    variables = _SafeDict({
+        "series":       session.series_short  or "",
+        "series_full":  session.series_name   or "",
+        "event":        session.event_name    or "",
+        "session":      session.session_name  or "",
+        "circuit":      session.circuit       or "",
+        "country":      session.country       or "",
+        "category":     session.category      or "",
+    })
+    try:
+        return template.format_map(variables).strip()
+    except (ValueError, KeyError, IndexError):
+        return DEFAULT_TITLE_TEMPLATE.format_map(variables).strip()
+
+
+def _to_calendar_event(session: Session, title_template: str) -> CalendarEvent:
+    summary = _format_title(title_template, session)
     location_parts = [p for p in (session.circuit, session.country) if p]
     location = ", ".join(location_parts) or None
     description_lines = [
@@ -91,8 +127,6 @@ def _to_calendar_event(session: Session) -> CalendarEvent:
 
     if session.is_all_day:
         start = session.start.date()
-        # iCal-style: end date is exclusive. If the session ends partway through
-        # a day, include that whole day by rounding up.
         end_date = session.end.date()
         if session.end.timetz().replace(tzinfo=None) != time(0, 0):
             end_date = end_date + timedelta(days=1)

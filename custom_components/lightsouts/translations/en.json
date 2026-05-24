@@ -7,7 +7,11 @@
         "data": {
           "series": "Series to include",
           "session_types": "Session types to include",
-          "update_interval_hours": "Refresh interval (hours)"
+          "update_interval_hours": "Refresh interval (hours)",
+          "title_template": "Event summary template"
+        },
+        "data_description": {
+          "title_template": "Available variables: {series}, {series_full}, {event}, {session}, {circuit}, {country}, {category}"
         }
       }
     },
@@ -24,7 +28,11 @@
         "data": {
           "series": "Series to include",
           "session_types": "Session types to include",
-          "update_interval_hours": "Refresh interval (hours)"
+          "update_interval_hours": "Refresh interval (hours)",
+          "title_template": "Event summary template"
+        },
+        "data_description": {
+          "title_template": "Available variables: {series}, {series_full}, {event}, {session}, {circuit}, {country}, {category}"
         }
       }
     },
