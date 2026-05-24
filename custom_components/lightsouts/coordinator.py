@@ -100,14 +100,19 @@ class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
         return set(raw) if raw else set(ALL_SESSION_TYPES)
 
     async def _async_update_data(self) -> list[Session]:
-        """Fetch series index, then each selected series' events in parallel."""
-        try:
-            available = await self._fetch_series_index()
-        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
-            raise UpdateFailed(f"Failed to fetch series index: {err}") from err
-
+        """Fetch only the selected series, skipping the index when slugs are known."""
         wanted = self._selected_series
-        slugs = [s["slug"] for s in available if wanted is None or s["slug"] in wanted]
+        if wanted is not None:
+            # User has an explicit selection — go straight to the detail pages.
+            slugs = wanted
+        else:
+            # No selection stored (edge case) — fall back to fetching the index.
+            try:
+                available = await self._fetch_series_index()
+            except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+                raise UpdateFailed(f"Failed to fetch series index: {err}") from err
+            slugs = [s["slug"] for s in available]
+
         if not slugs:
             return []
 
