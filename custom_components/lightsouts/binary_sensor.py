@@ -88,7 +88,7 @@ class LightsoutsActiveSensor(
             "session": session.session_name,
             "circuit": session.circuit,
             "country": session.country,
-            "category": session.category,
+            "category": session.category.title() if session.category else "",
             "start": session.start.isoformat(),
             "end": session.end.isoformat(),
             "uid": session.uid,
