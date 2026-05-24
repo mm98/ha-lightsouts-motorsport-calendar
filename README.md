@@ -73,7 +73,7 @@ Available variables:
 | `{session}` | `Race` |
 | `{circuit}` | `Circuit de Monaco` |
 | `{country}` | `Monaco` |
-| `{category}` | `race` |
+| `{category}` | `Race` |
 
 Unknown variables are silently replaced with an empty string, so you can safely experiment. Example templates:
 
@@ -113,7 +113,7 @@ When `on`, the following attributes are available:
 | `session` | Session name (e.g. `Race`) |
 | `circuit` | Circuit name |
 | `country` | Host country |
-| `category` | `practice`, `qualifying`, `sprint`, `race`, or `other` |
+| `category` | `Practice`, `Qualifying`, `Sprint`, `Race`, or `Other` |
 | `start` | Session start time (ISO-8601 UTC) |
 | `end` | Session end time (ISO-8601 UTC) |
 | `uid` | Stable unique identifier for the session |
