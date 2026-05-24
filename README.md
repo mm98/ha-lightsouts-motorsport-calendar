@@ -79,7 +79,6 @@ Since the API is undocumented, it could change without notice. If it does, pleas
 
 The integration takes care to minimise load on the lightsouts.com infrastructure:
 
-- **Identifying User-Agent** — every request sends `ha-lightsouts-motorsport-calendar/<version> (+<repo URL>)` so the maintainer can identify our traffic and reach out if it becomes a problem
 - **Limited concurrency** — at most 4 series are fetched in parallel per refresh, instead of bursting all 19 simultaneously
 - **Conditional requests** — `ETag` is cached per URL and sent back as `If-None-Match` on the next refresh; when the API replies `304 Not Modified` we keep the previous payload, so almost every refresh after the first is zero-body
 - **Cloudflare-friendly defaults** — the 3 hour default refresh interval is far above the API's `max-age=900` cache window, so we don't trigger cache misses unnecessarily
