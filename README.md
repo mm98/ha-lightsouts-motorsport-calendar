@@ -141,17 +141,20 @@ The sensor always shows details — the current session when on, or the next upc
 
 ```yaml
 trigger:
-  - platform: calendar
-    entity_id: calendar.lightsouts
-    event: start
+  - platform: state
+    entity_id: binary_sensor.lightsouts_active_session
+    to: "on"
 condition:
   - condition: template
-    value_template: "{{ 'Category: Race' in trigger.calendar_event.description }}"
+    value_template: "{{ state_attr('binary_sensor.lightsouts_active_session', 'category') == 'Race' }}"
 action:
   - service: notify.mobile_app_your_phone
     data:
       title: "🏁 Race starting"
-      message: "{{ trigger.calendar_event.summary }}"
+      message: >
+        {{ state_attr('binary_sensor.lightsouts_active_session', 'series') }}:
+        {{ state_attr('binary_sensor.lightsouts_active_session', 'session') }}
+        at {{ state_attr('binary_sensor.lightsouts_active_session', 'circuit') }}
 ```
 
 **Turn on a scene while an F1 race is live** (stays active for the full session duration):
