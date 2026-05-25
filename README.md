@@ -145,16 +145,18 @@ trigger:
     entity_id: binary_sensor.lightsouts_active_session
     to: "on"
 condition:
-  - condition: template
-    value_template: "{{ state_attr('binary_sensor.lightsouts_active_session', 'category') == 'Race' }}"
+  - condition: state
+    entity_id: binary_sensor.lightsouts_active_session
+    attribute: category
+    state: "Race"
 action:
   - service: notify.mobile_app_your_phone
     data:
       title: "🏁 Race starting"
       message: >
-        {{ state_attr('binary_sensor.lightsouts_active_session', 'series') }}:
-        {{ state_attr('binary_sensor.lightsouts_active_session', 'session') }}
-        at {{ state_attr('binary_sensor.lightsouts_active_session', 'circuit') }}
+        {{ trigger.to_state.attributes.series }}:
+        {{ trigger.to_state.attributes.session }}
+        at {{ trigger.to_state.attributes.circuit }}
 ```
 
 **Turn on a scene while an F1 race is live** (stays active for the full session duration):
@@ -165,10 +167,14 @@ trigger:
     entity_id: binary_sensor.lightsouts_active_session
     to: "on"
 condition:
-  - condition: template
-    value_template: >
-      {{ state_attr('binary_sensor.lightsouts_active_session', 'series') == 'F1'
-         and state_attr('binary_sensor.lightsouts_active_session', 'category') == 'Race' }}
+  - condition: state
+    entity_id: binary_sensor.lightsouts_active_session
+    attribute: series
+    state: "F1"
+  - condition: state
+    entity_id: binary_sensor.lightsouts_active_session
+    attribute: category
+    state: "Race"
 action:
   - scene: scene.race_mode
 ```
