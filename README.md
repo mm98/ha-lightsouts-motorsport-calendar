@@ -1,19 +1,19 @@
-# Lightsouts Motorsport Calendar — Home Assistant integration
+# Lightsouts Motorsport Calendar - Home Assistant integration
 
 Adds motorsport events from [lightsouts.com](https://lightsouts.com/) to Home Assistant as a calendar and a live-session sensor.
 
-F1, MotoGP, WRC, IndyCar, NASCAR, WEC, Formula E, IMSA, Supercars, DTM, Superbike, Moto2/3, F1 Academy, F2, F3, Indy NXT, NASCAR Truck, NASCAR O'Reilly — 19 series, ~750 sessions per season.
+F1, MotoGP, WRC, IndyCar, NASCAR, WEC, Formula E, IMSA, Supercars, DTM, Superbike, Moto2/3, F1 Academy, F2, F3, Indy NXT, NASCAR Truck, NASCAR O'Reilly - 19 series, ~750 sessions per season.
 
 ## Features
 
-- **Calendar** (`calendar.lightsouts`) — all sessions from every series you pick, in one place
-- **Live-session sensor** (`binary_sensor.lightsouts_active_session`) — turns on while a session is live and always shows the current or next session's details
-- **Per-series filtering** — choose any subset of the 19 available series
-- **Per-session-type filtering** — Practice, Qualifying, Sprint, Race, Other
-- **Customisable event title and description** — build the calendar event title and detail text from any combination of series, event, session, circuit, and more
-- **Sensible rendering of multi-day rallies** — WRC events show as all-day banners spanning the rally weekend; continuous endurance races (Le Mans 24h, Petit Le Mans 10h) stay as timed events
+- **Calendar** (`calendar.lightsouts`) - all sessions from every series you pick, in one place
+- **Live-session sensor** (`binary_sensor.lightsouts_active_session`) - turns on while a session is live and always shows the current or next session's details
+- **Per-series filtering** - choose any subset of the 19 available series
+- **Per-session-type filtering** - Practice, Qualifying, Sprint, Race, Other
+- **Customisable event title and description** - build the calendar event title and detail text from any combination of series, event, session, circuit, and more
+- **Sensible rendering of multi-day rallies** - WRC events show as all-day banners spanning the rally weekend; continuous endurance races (Le Mans 24h, Petit Le Mans 10h) stay as timed events
 - **Configurable refresh interval** (1–168 hours, default 3h)
-- **Times in your local timezone** — Home Assistant converts UTC times to whatever your HA instance is set to
+- **Times in your local timezone** - Home Assistant converts UTC times to whatever your HA instance is set to
 - **Available in English and Danish**
 
 ## Requirements
@@ -24,7 +24,7 @@ F1, MotoGP, WRC, IndyCar, NASCAR, WEC, Formula E, IMSA, Supercars, DTM, Superbik
 
 ### HACS (recommended)
 
-1. HACS → Integrations → ⋮ → *Custom repositories*
+1. HACS > Integrations > ⋮ > *Custom repositories*
 2. Add `https://github.com/mm98/ha-lightsouts-motorsport-calendar` as category **Integration**
 3. Install **Lightsouts Motorsport Calendar**
 4. Restart Home Assistant
@@ -36,17 +36,17 @@ F1, MotoGP, WRC, IndyCar, NASCAR, WEC, Formula E, IMSA, Supercars, DTM, Superbik
 
 ## Setup
 
-1. **Settings → Devices & Services → Add Integration**
+1. **Settings > Devices & Services > Add Integration**
 2. Search for **Lightsouts**
 3. Pick the series and session types you want, set the refresh interval, and optionally customise the event title; save
 
 Two items will appear under the **Lightsouts** device:
-- `calendar.lightsouts` — add to a Calendar dashboard card to see upcoming races
-- `binary_sensor.lightsouts_active_session` — use in automations to react when a session goes live
+- `calendar.lightsouts` - add to a Calendar dashboard card to see upcoming races
+- `binary_sensor.lightsouts_active_session` - use in automations to react when a session goes live
 
 ## Options
 
-All settings can be changed later via **Settings → Devices & Services → Lightsouts → Configure**:
+All settings can be changed later via **Settings > Devices & Services > Lightsouts > Configure**:
 
 | Option | Description |
 |---|---|
@@ -80,7 +80,7 @@ Unrecognised placeholders are ignored, so you can experiment freely. More exampl
 
 ```
 {series} | {circuit}: {session}
-{series_full} — {event} ({session})
+{series_full} - {event} ({session})
 {session} @ {circuit}, {country}
 ```
 
@@ -117,7 +117,7 @@ If you want only Sunday races, pick **Race** and **Sprint** (or just **Race** if
 
 `binary_sensor.lightsouts_active_session` turns on for the exact duration of a live session and off at all other times. It reacts at the precise start and end time of each session, not just when the calendar refreshes.
 
-The sensor always shows details — the current session when on, or the next upcoming session when off. The `start` and `end` values indicate which session is shown.
+The sensor always shows details - the current session when on, or the next upcoming session when off. The `start` and `end` values indicate which session is shown.
 
 | Detail | Description |
 |---|---|
@@ -197,17 +197,17 @@ action:
 
 The integration is designed to be a considerate user of the lightsouts.com infrastructure:
 
-- **Concurrency limit** — at most 4 series are fetched in parallel per refresh, instead of bursting all 19 simultaneously
-- **Fetch only selected series** — only the series you have chosen are downloaded; the full series index is never fetched after setup
-- **ETag / conditional requests** — each response's ETag is cached and sent back as `If-None-Match` on the next refresh; when the API replies `304 Not Modified` the previous payload is reused, so most refreshes transfer almost nothing
-- **Sensible default interval** — the 3 hour default is well above the API's `max-age=900` cache window, so requests are mostly served from Cloudflare's edge rather than the origin
+- **Concurrency limit** - at most 4 series are fetched in parallel per refresh, instead of bursting all 19 simultaneously
+- **Fetch only selected series** - only the series you have chosen are downloaded; the full series index is never fetched after setup
+- **ETag / conditional requests** - each response's ETag is cached and sent back as `If-None-Match` on the next refresh; when the API replies `304 Not Modified` the previous payload is reused, so most refreshes transfer almost nothing
+- **Sensible default interval** - the 3 hour default is well above the API's `max-age=900` cache window, so requests are mostly served from Cloudflare's edge rather than the origin
 
 Net result: roughly 800 KB/day of traffic (one full download on the first refresh, then mostly `304`s).
 
 ## Credits
 
-All event data comes from [lightsouts.com](https://lightsouts.com/) — a calendar for motorsport events maintained by its author. If this integration is useful to you, consider supporting them through the donation link on their site.
+All event data comes from [lightsouts.com](https://lightsouts.com/) - a calendar for motorsport events maintained by its author. If this integration is useful to you, consider supporting them through the donation link on their site.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).
