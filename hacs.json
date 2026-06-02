@@ -2,5 +2,5 @@
   "name": "Lightsouts Motorsport Calendar",
   "render_readme": true,
   "homeassistant": "2024.1.0",
-  "country": ["DK", "DE"]
+  "country": ["DK", "EN"]
 }
