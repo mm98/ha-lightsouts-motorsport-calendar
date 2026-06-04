@@ -30,12 +30,10 @@ CONF_DESCRIPTION_TEMPLATE = "description_template"
 # {session}, {circuit}, {country}, {location}, {category}
 DEFAULT_TITLE_TEMPLATE = "{series}: {circuit} ({country})"
 DEFAULT_DESCRIPTION_TEMPLATE = (
-    "Series: {series_full}\n"
-    "Event: {event}\n"
-    "Session: {session}\n"
-    "Category: {category}\n"
-    "Location: {location}\n"
-    "Source: https://lightsouts.com/{series_slug}"
+    "Series: {series_full},\n"
+    "Event: {event},\n"
+    "Session: {session},\n"
+    "Location: {location}"
 )
 
 SESSION_TYPE_PRACTICE = "practice"
