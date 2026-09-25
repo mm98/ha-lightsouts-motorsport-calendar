@@ -1,82 +1,79 @@
-# Lightsouts Motorsport Calendar - Home Assistant integration
+# Lightsouts Motorsport Calendar for Home Assistant
 
-Adds motorsport events from [lightsouts.com](https://lightsouts.com/) to Home Assistant as a calendar and a live-session sensor.
+See upcoming motorsport sessions from [lightsouts.com](https://lightsouts.com/) in Home Assistant: a calendar with every session of the series you follow, and a sensor that turns on while a session is live, for automations like "turn on the race scene when the F1 race starts".
 
-F1, MotoGP, WRC, IndyCar, NASCAR, WEC, Formula E, IMSA, Supercars, DTM, Superbike, Moto2/3, F1 Academy, F2, F3, Indy NXT, NASCAR Truck, NASCAR O'Reilly - 19 series, ~750 sessions per season.
+It covers 19 series, about 750 sessions per season: F1, F2, F3, F1 Academy, MotoGP, Moto2, Moto3, WRC, WEC, IMSA, IndyCar, Indy NXT, NASCAR, NASCAR O'Reilly, NASCAR Truck, Formula E, Supercars, DTM and Superbike.
 
-## Features
+Available in English and Danish.
 
-- **Calendar** (`calendar.lightsouts`) - all sessions from every series you pick, in one place
-- **Live-session sensor** (`binary_sensor.lightsouts_active_session`) - turns on while a session is live and always shows the current or next session's details
-- **Per-series filtering** - choose any subset of the 19 available series
-- **Per-session-type filtering** - Practice, Qualifying, Sprint, Race, Other
-- **Customisable event title and description** - build the calendar event title and detail text from any combination of series, event, session, circuit, and more
-- **Sensible rendering of multi-day rallies** - WRC events show as all-day banners spanning the rally weekend; continuous endurance races (Le Mans 24h, Petit Le Mans 10h) stay as timed events
-- **Configurable refresh interval** (1–168 hours, default 3h)
-- **Times in your local timezone** - Home Assistant converts UTC times to whatever your HA instance is set to
-- **Available in English and Danish**
+## Install
 
-## Requirements
+Requires Home Assistant 2024.1 or newer.
 
-- Home Assistant 2024.1 or newer
+### With HACS
 
-## Installation
+Select this button to open the integration in HACS, then select **Download**:
 
-### HACS (recommended)
+[![Open this repository in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=mm98&repository=ha-lightsouts-motorsport-calendar&category=integration)
 
-1. HACS > Integrations > ⋮ > *Custom repositories*
-2. Add `https://github.com/mm98/ha-lightsouts-motorsport-calendar` as category **Integration**
-3. Install **Lightsouts Motorsport Calendar**
-4. Restart Home Assistant
+Or add it yourself:
 
-### Manual
+1. Open **HACS**, select the three dots at the top right and pick **Custom repositories**.
+2. Enter `https://github.com/mm98/ha-lightsouts-motorsport-calendar`, choose the type **Integration** and select **Add**.
+3. Search HACS for **Lightsouts Motorsport Calendar**, open it and select **Download**.
+4. Restart Home Assistant.
 
-1. Copy the `custom_components/lightsouts/` folder from this repository into your Home Assistant `config/custom_components/` directory
-2. Restart Home Assistant
+### Without HACS
 
-## Setup
+1. Copy the `custom_components/lightsouts` folder from this repository into the `custom_components` folder of your Home Assistant configuration.
+2. Restart Home Assistant.
 
-1. **Settings > Devices & Services > Add Integration**
-2. Search for **Lightsouts**
-3. Pick the series and session types you want, set the refresh interval, and optionally customise the event title; save
+## Set up
 
-Two items will appear under the **Lightsouts** device:
-- `calendar.lightsouts` - add to a Calendar dashboard card to see upcoming races
-- `binary_sensor.lightsouts_active_session` - use in automations to react when a session goes live
+Go to **Settings > Devices & services**, select **Add integration** and pick **Lightsouts**. Or select this button:
 
-## Options
+[![Add the Lightsouts integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=lightsouts)
 
-All settings can be changed later via **Settings > Devices & Services > Lightsouts > Configure**:
+Then choose what to show:
 
-| Option | Description |
+| Setting | What it does |
 |---|---|
-| **Series to include** | Choose which of the 19 series to show; defaults to all |
-| **Session types to include** | Practice / Qualifying / Sprint / Race / Other |
-| **Refresh interval (hours)** | How often the calendar checks for updates (1–168, default 3) |
-| **Event title template** | Customise the title of each calendar event using placeholders (see below) |
-| **Event description template** | Customise the detail text shown when you open an event (see below) |
+| Series to include | Which of the 19 series to show. All of them by default. |
+| Session types to include | Practice, Qualifying, Sprint, Race and Other. See **Session types** below. |
+| Refresh interval (hours) | How often the calendar checks lightsouts.com for changes: 1 to 168 hours, 3 by default. |
+| Event title template | How each event in the calendar is named. See below. |
+| Event description template | The text you see when you open an event. See below. |
 
-### Event title template
+You can change these settings later with **Configure** on the integration.
 
-The title of each calendar event is built from a pattern you define. The default is:
+### Event title and description
+
+The default title is `{series}: {circuit} ({country})`, for example `F1: Circuit de Monaco (Monaco)`. The default description is:
 
 ```
-{series}: {circuit} ({country})
+Series: {series_full},
+Event: {event},
+Session: {session},
+Location: {location}
 ```
 
-Available placeholders:
+You can use these placeholders in both:
 
 | Placeholder | Example |
 |---|---|
-| `{series}` | `F1` |
-| `{series_full}` | `Formula 1` |
-| `{event}` | `Monaco Grand Prix` |
-| `{session}` | `Race` |
-| `{circuit}` | `Circuit de Monaco` |
-| `{country}` | `Monaco` |
-| `{category}` | `Race` |
+| `{series}` | F1 |
+| `{series_full}` | Formula 1 |
+| `{event}` | Monaco Grand Prix |
+| `{session}` | Race |
+| `{circuit}` | Circuit de Monaco |
+| `{country}` | Monaco |
+| `{location}` | Circuit de Monaco, Monaco |
+| `{category}` | Race |
+| `{series_slug}` and `{event_slug}` | The series and the event as they appear in lightsouts.com links, for example `https://lightsouts.com/{series_slug}` |
 
-Unrecognised placeholders are ignored, so you can experiment freely. More examples:
+Placeholders the integration doesn't know stay empty, so you can try things out freely. In the description, a line is left out when it ends with a placeholder that has no value, for example **Location:** when no circuit is known.
+
+Some other titles to try:
 
 ```
 {series} | {circuit}: {session}
@@ -84,130 +81,116 @@ Unrecognised placeholders are ignored, so you can experiment freely. More exampl
 {session} @ {circuit}, {country}
 ```
 
-### Event description template
+### Session types
 
-The detail text shown when you open a calendar event is also configurable. The default is:
+Every session belongs to one of these types:
 
-```
-Series: {series_full}
-Event: {event}
-Session: {session}
-Category: {category}
-Location: {location}
-Source: https://lightsouts.com/{series_slug}
-```
-
-The same placeholders are available as for the title, plus `{series_slug}` and `{event_slug}`. Lines where a placeholder has no value (e.g. `Location:` when no circuit is known) are hidden automatically.
-
-### Session type classification
-
-Each session falls into one of these categories:
-
-| Category | Includes |
+| Type | Includes |
 |---|---|
-| **Practice** | Free Practice 1–4, Practice 1–8, Warm Up |
-| **Qualifying** | Qualifying 1–3, Qualifications 1–2, Sprint Qualifying, Superpole, Hyperpole, Top 10 Shootout |
-| **Sprint** | Sprint, Sprint Race, Superpole Race |
-| **Race** | Race 1–3, Feature Race, Opening Race, Reverse Grid Race, Rally |
-| **Other** | Anything that doesn't match the above |
+| Practice | Free Practice 1 to 4, Practice 1 to 8, Warm Up |
+| Qualifying | Qualifying 1 to 3, Qualifications 1 and 2, Sprint Qualifying, Superpole, Hyperpole, Top 10 Shootout |
+| Sprint | Sprint, Sprint Race, Superpole Race |
+| Race | Race 1 to 3, Feature Race, Opening Race, Reverse Grid Race, Rally |
+| Other | Everything else |
 
-If you want only Sunday races, pick **Race** and **Sprint** (or just **Race** if you skip sprint weekends).
+For only the races, pick **Race**, and **Sprint** too if you want the sprint races.
 
-## Live-session sensor
+## What you get
 
-`binary_sensor.lightsouts_active_session` turns on for the exact duration of a live session and off at all other times. It reacts at the precise start and end time of each session, not just when the calendar refreshes.
+### A calendar
 
-The sensor always shows details - the current session when on, or the next upcoming session when off. The `start` and `end` values indicate which session is shown.
+`calendar.lightsouts` shows every session of the series and session types you picked, in your own time zone. Add it to a **Calendar** card to see what's coming up.
 
-| Detail | Description |
+Rallies such as WRC show as all-day events across the rally weekend. Long endurance races, such as the Le Mans 24 Hours, keep their real start and end times.
+
+### A live session sensor
+
+`binary_sensor.lightsouts_active_session` is on while a session is live and off the rest of the time. It switches at the exact start and end of each session, not only when the calendar checks for changes.
+
+Open it to see the session that is live, or the next one when nothing is:
+
+| Detail | Shows |
 |---|---|
-| `series` | Short series name (e.g. `F1`) |
-| `series_full` | Full series name (e.g. `Formula 1`) |
-| `series_slug` | Internal series identifier (e.g. `formula-1`) |
-| `event` | Event/round name |
-| `event_slug` | Internal event identifier |
-| `session` | Session name (e.g. `Race`) |
-| `circuit` | Circuit name |
-| `country` | Host country |
-| `category` | `Practice`, `Qualifying`, `Sprint`, `Race`, or `Other` |
-| `start` | Session start time (UTC) |
-| `end` | Session end time (UTC) |
-| `uid` | Unique identifier for the session |
-| `is_main` | `true` if this is the headline session of the event |
+| series | The short series name, for example F1 |
+| series_full | The full series name, for example Formula 1 |
+| event | The event, for example Monaco Grand Prix |
+| session | The session, for example Race |
+| circuit | The circuit |
+| country | The country |
+| category | Practice, Qualifying, Sprint, Race or Other |
+| start and end | When the session starts and ends, in UTC |
+| is_main | true for the main session of the event |
 
-### Example automations
+## Examples
 
-**Notify when any race starts** (fires at the exact start time):
+Create a new automation, open the three dots at the top right, pick **Edit in YAML** and paste one of these.
+
+A notification when a race starts:
 
 ```yaml
-trigger:
-  - platform: state
+triggers:
+  - trigger: state
     entity_id: binary_sensor.lightsouts_active_session
     to: "on"
-condition:
+conditions:
   - condition: state
     entity_id: binary_sensor.lightsouts_active_session
     attribute: category
-    state: "Race"
-action:
-  - service: notify.mobile_app_your_phone
+    state: Race
+actions:
+  - action: notify.notify
     data:
-      title: "🏁 Race starting"
+      title: Race starting
       message: >
         {{ trigger.to_state.attributes.series }}:
         {{ trigger.to_state.attributes.session }}
         at {{ trigger.to_state.attributes.circuit }}
 ```
 
-**Turn on a scene while an F1 race is live** (stays active for the full session duration):
+A scene while an F1 race is live:
 
 ```yaml
-trigger:
-  - platform: state
+triggers:
+  - trigger: state
     entity_id: binary_sensor.lightsouts_active_session
     to: "on"
-condition:
+conditions:
   - condition: state
     entity_id: binary_sensor.lightsouts_active_session
     attribute: series
-    state: "F1"
+    state: F1
   - condition: state
     entity_id: binary_sensor.lightsouts_active_session
     attribute: category
-    state: "Race"
-action:
-  - scene: scene.race_mode
+    state: Race
+actions:
+  - action: scene.turn_on
+    target:
+      entity_id: scene.race_mode
 ```
 
-**Notify when a session ends**:
+A notification when a session ends:
 
 ```yaml
-trigger:
-  - platform: state
+triggers:
+  - trigger: state
     entity_id: binary_sensor.lightsouts_active_session
     from: "on"
     to: "off"
-action:
-  - service: notify.mobile_app_your_phone
+actions:
+  - action: notify.notify
     data:
-      message: "Session over."
+      message: The session is over.
 ```
 
-## Network efficiency
+## Problems and ideas
 
-The integration is designed to be a considerate user of the lightsouts.com infrastructure:
-
-- **Concurrency limit** - at most 4 series are fetched in parallel per refresh, instead of bursting all 19 simultaneously
-- **Fetch only selected series** - only the series you have chosen are downloaded; the full series index is never fetched after setup
-- **ETag / conditional requests** - each response's ETag is cached and sent back as `If-None-Match` on the next refresh; when the API replies `304 Not Modified` the previous payload is reused, so most refreshes transfer almost nothing
-- **Sensible default interval** - the 3 hour default is well above the API's `max-age=900` cache window, so requests are mostly served from Cloudflare's edge rather than the origin
-
-Net result: roughly 800 KB/day of traffic (one full download on the first refresh, then mostly `304`s).
+Tell us on [GitHub](https://github.com/mm98/ha-lightsouts-motorsport-calendar/issues).
 
 ## Credits
 
-All event data comes from [lightsouts.com](https://lightsouts.com/) - a calendar for motorsport events maintained by its author. If this integration is useful to you, consider supporting them through the donation link on their site.
+All event data comes from [lightsouts.com](https://lightsouts.com/), a motorsport calendar made by its author. If this integration is useful to you, consider supporting them through the donation link on their site. This integration is not made by lightsouts.com or connected to it.
 
 ## License
 
-MIT - see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).
