@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 DOMAIN = "lightsouts"
-INTEGRATION_VERSION = "0.1.0"  # keep in sync with manifest.json
+INTEGRATION_VERSION = "0.2.0"  # keep in sync with manifest.json
 
 API_BASE = "https://api.lightsouts.com/v1"
 API_SERIES_INDEX = f"{API_BASE}/series"
@@ -22,6 +22,7 @@ USER_AGENT = (
 CONF_SERIES = "series"
 CONF_SESSION_TYPES = "session_types"
 CONF_UPDATE_INTERVAL_HOURS = "update_interval_hours"
+CONF_KEEP_FINISHED_DAYS = "keep_finished_days"
 CONF_TITLE_TEMPLATE = "title_template"
 CONF_DESCRIPTION_TEMPLATE = "description_template"
 
@@ -54,3 +55,11 @@ DEFAULT_SESSION_TYPES = list(ALL_SESSION_TYPES)
 DEFAULT_UPDATE_INTERVAL_HOURS = 3
 MIN_UPDATE_INTERVAL_HOURS = 1
 MAX_UPDATE_INTERVAL_HOURS = 168  # one week
+
+# How long a session stays in the calendar after it ends. The feed drops a
+# race weekend once it is over, so finished sessions are kept in storage.
+DEFAULT_KEEP_FINISHED_DAYS = 7
+MIN_KEEP_FINISHED_DAYS = 0
+MAX_KEEP_FINISHED_DAYS = 365
+
+STORAGE_VERSION = 1
