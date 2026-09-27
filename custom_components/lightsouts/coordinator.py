@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -11,15 +11,19 @@ import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.storage import Store
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.util import dt as dt_util
 
 from .const import (
     ALL_SESSION_TYPES,
     API_SERIES_DETAIL,
     API_SERIES_INDEX,
+    CONF_KEEP_FINISHED_DAYS,
     CONF_SERIES,
     CONF_SESSION_TYPES,
     CONF_UPDATE_INTERVAL_HOURS,
+    DEFAULT_KEEP_FINISHED_DAYS,
     DEFAULT_UPDATE_INTERVAL_HOURS,
     DOMAIN,
     MAX_CONCURRENT_REQUESTS,
@@ -29,6 +33,7 @@ from .const import (
     SESSION_TYPE_QUALIFYING,
     SESSION_TYPE_RACE,
     SESSION_TYPE_SPRINT,
+    STORAGE_VERSION,
     USER_AGENT,
 )
 
@@ -61,6 +66,11 @@ class Session:
     is_all_day: bool
 
 
+def history_store(hass: HomeAssistant, entry_id: str) -> Store[dict[str, Any]]:
+    """The file that keeps sessions after the feed has dropped them."""
+    return Store(hass, STORAGE_VERSION, f"{DOMAIN}.{entry_id}")
+
+
 class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
     """Fetches and refreshes motorsport sessions from lightsouts.com."""
 
@@ -72,6 +82,10 @@ class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
         # re-downloading unchanged data on every refresh.
         self._etag: dict[str, str] = {}
         self._cached_payload: dict[str, Any] = {}
+        # Sessions that have started, so they outlive their weekend in the
+        # feed. Saved to disk, so a restart keeps them too.
+        self._store = history_store(hass, entry.entry_id)
+        self._history: dict[str, Session] = {}
         hours = entry.options.get(
             CONF_UPDATE_INTERVAL_HOURS,
             entry.data.get(CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS),
@@ -79,6 +93,7 @@ class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
         super().__init__(
             hass,
             _LOGGER,
+            config_entry=entry,
             name=DOMAIN,
             update_interval=timedelta(hours=hours),
         )
@@ -98,6 +113,23 @@ class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
             self.entry.data.get(CONF_SESSION_TYPES, list(ALL_SESSION_TYPES)),
         )
         return set(raw) if raw else set(ALL_SESSION_TYPES)
+
+    @property
+    def keep_finished_days(self) -> int:
+        """Days a session stays in the calendar after it ends."""
+        return int(
+            self.entry.options.get(
+                CONF_KEEP_FINISHED_DAYS,
+                self.entry.data.get(CONF_KEEP_FINISHED_DAYS, DEFAULT_KEEP_FINISHED_DAYS),
+            )
+        )
+
+    async def _async_setup(self) -> None:
+        """Load the kept sessions once, before the first refresh."""
+        stored = await self._store.async_load() or {}
+        for raw in stored.get("sessions", []):
+            if (session := _session_from_dict(raw)) is not None:
+                self._history[session.uid] = session
 
     async def _async_update_data(self) -> list[Session]:
         """Fetch only the selected series, skipping the index when slugs are known."""
@@ -127,10 +159,34 @@ class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
                 continue
             sessions.extend(self._flatten_series(result))
 
+        sessions = await self._async_add_history(sessions, slugs)
         allowed = self._selected_session_types
         sessions = [s for s in sessions if s.category in allowed]
         sessions.sort(key=lambda s: s.start)
         return sessions
+
+    async def _async_add_history(
+        self, fetched: list[Session], slugs: list[str]
+    ) -> list[Session]:
+        """Keep sessions that have started, and add back the ones the feed dropped."""
+        now = dt_util.utcnow()
+        cutoff = now - timedelta(days=self.keep_finished_days)
+        history = {uid: s for uid, s in self._history.items() if s.end > cutoff}
+        # The feed's latest details win, for example when a session was moved.
+        history.update((s.uid, s) for s in fetched if s.start <= now and s.end > cutoff)
+        if history != self._history:
+            self._history = history
+            await self._store.async_save(
+                {"sessions": [_session_to_dict(s) for s in history.values()]}
+            )
+
+        fetched_uids = {s.uid for s in fetched}
+        wanted = set(slugs)
+        return fetched + [
+            s
+            for s in history.values()
+            if s.uid not in fetched_uids and s.series_slug in wanted
+        ]
 
     async def _fetch_series_index(self) -> list[dict[str, Any]]:
         return await self._fetch_json(API_SERIES_INDEX)
@@ -245,4 +301,25 @@ def _parse_session_start(date_str: str | None, time_str: str | None) -> datetime
             f"{date_str}T{time_str or '00:00'}:00+00:00"
         )
     except ValueError:
+        return None
+
+
+def _session_to_dict(session: Session) -> dict[str, Any]:
+    data = asdict(session)
+    data["start"] = session.start.isoformat()
+    data["end"] = session.end.isoformat()
+    return data
+
+
+def _session_from_dict(data: dict[str, Any]) -> Session | None:
+    """Rebuild a kept session, or None when it was saved in another shape."""
+    try:
+        return Session(
+            **{
+                **data,
+                "start": datetime.fromisoformat(data["start"]),
+                "end": datetime.fromisoformat(data["end"]),
+            }
+        )
+    except (KeyError, TypeError, ValueError):
         return None

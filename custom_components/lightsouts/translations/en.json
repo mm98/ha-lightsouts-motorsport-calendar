@@ -8,10 +8,12 @@
           "series": "Series to include",
           "session_types": "Session types to include",
           "update_interval_hours": "Refresh interval (hours)",
+          "keep_finished_days": "Keep finished sessions (days)",
           "title_template": "Event title template",
           "description_template": "Event description template"
         },
         "data_description": {
+          "keep_finished_days": "How many days a session stays in the calendar after it ends.",
           "title_template": "Placeholders: series, series_full, event, session, circuit, country, location, category",
           "description_template": "Placeholders: series, series_full, series_slug, event, event_slug, session, circuit, country, location, category. One line per field; lines with no value are hidden automatically."
         }
@@ -26,15 +28,17 @@
     "step": {
       "init": {
         "title": "Lightsouts options",
-        "description": "Change which series and session types are included, or how often the calendar refreshes.",
+        "description": "Change which series and session types are included, how often the calendar refreshes, or how long finished sessions stay.",
         "data": {
           "series": "Series to include",
           "session_types": "Session types to include",
           "update_interval_hours": "Refresh interval (hours)",
+          "keep_finished_days": "Keep finished sessions (days)",
           "title_template": "Event title template",
           "description_template": "Event description template"
         },
         "data_description": {
+          "keep_finished_days": "How many days a session stays in the calendar after it ends.",
           "title_template": "Placeholders: series, series_full, event, session, circuit, country, location, category",
           "description_template": "Placeholders: series, series_full, series_slug, event, event_slug, session, circuit, country, location, category. One line per field; lines with no value are hidden automatically."
         }

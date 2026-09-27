@@ -8,10 +8,12 @@
           "series": "Serier der skal medtages",
           "session_types": "Sessionstyper der skal medtages",
           "update_interval_hours": "Opdateringsinterval (timer)",
+          "keep_finished_days": "Behold afsluttede sessioner (dage)",
           "title_template": "Skabelon til begivenhedstitel",
           "description_template": "Skabelon til begivenhedsbeskrivelse"
         },
         "data_description": {
+          "keep_finished_days": "Hvor mange dage en session bliver i kalenderen, efter den er slut.",
           "title_template": "Pladsholdere: series, series_full, event, session, circuit, country, location, category",
           "description_template": "Pladsholdere: series, series_full, series_slug, event, event_slug, session, circuit, country, location, category. Én linje pr. felt; linjer uden værdi skjules automatisk."
         }
@@ -26,15 +28,17 @@
     "step": {
       "init": {
         "title": "Lightsouts-indstillinger",
-        "description": "Ændr hvilke serier og sessionstyper der inkluderes, eller hvor ofte kalenderen opdateres.",
+        "description": "Ændr hvilke serier og sessionstyper der inkluderes, hvor ofte kalenderen opdateres, eller hvor længe afsluttede sessioner bliver i kalenderen.",
         "data": {
           "series": "Serier der skal medtages",
           "session_types": "Sessionstyper der skal medtages",
           "update_interval_hours": "Opdateringsinterval (timer)",
+          "keep_finished_days": "Behold afsluttede sessioner (dage)",
           "title_template": "Skabelon til begivenhedstitel",
           "description_template": "Skabelon til begivenhedsbeskrivelse"
         },
         "data_description": {
+          "keep_finished_days": "Hvor mange dage en session bliver i kalenderen, efter den er slut.",
           "title_template": "Pladsholdere: series, series_full, event, session, circuit, country, location, category",
           "description_template": "Pladsholdere: series, series_full, series_slug, event, event_slug, session, circuit, country, location, category. Én linje pr. felt; linjer uden værdi skjules automatisk."
         }

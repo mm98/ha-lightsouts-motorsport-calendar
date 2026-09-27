@@ -85,7 +85,9 @@ class LightsoutsCalendar(CoordinatorEntity["LightsoutsCoordinator"], CalendarEnt
         end_date: datetime,
     ) -> list[CalendarEvent]:
         """Return sessions overlapping the given window."""
-        start_utc = dt_util.as_utc(start_date)
+        # Checked here rather than on refresh, so a session goes on time.
+        cutoff = dt_util.utcnow() - timedelta(days=self.coordinator.keep_finished_days)
+        start_utc = max(dt_util.as_utc(start_date), cutoff)
         end_utc = dt_util.as_utc(end_date)
         title_tmpl = self._title_template
         desc_tmpl = self._description_template

@@ -6,7 +6,7 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
-from .coordinator import LightsoutsCoordinator
+from .coordinator import LightsoutsCoordinator, history_store
 
 PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.CALENDAR]
 
@@ -29,6 +29,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id, None)
     return unloaded
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Delete the kept sessions along with the integration."""
+    await history_store(hass, entry.entry_id).async_remove()
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:

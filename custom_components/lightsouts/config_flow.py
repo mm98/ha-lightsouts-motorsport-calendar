@@ -27,16 +27,20 @@ from .const import (
     ALL_SESSION_TYPES,
     API_SERIES_INDEX,
     CONF_DESCRIPTION_TEMPLATE,
+    CONF_KEEP_FINISHED_DAYS,
     CONF_SERIES,
     CONF_SESSION_TYPES,
     CONF_TITLE_TEMPLATE,
     CONF_UPDATE_INTERVAL_HOURS,
     DEFAULT_DESCRIPTION_TEMPLATE,
+    DEFAULT_KEEP_FINISHED_DAYS,
     DEFAULT_SESSION_TYPES,
     DEFAULT_TITLE_TEMPLATE,
     DEFAULT_UPDATE_INTERVAL_HOURS,
     DOMAIN,
+    MAX_KEEP_FINISHED_DAYS,
     MAX_UPDATE_INTERVAL_HOURS,
+    MIN_KEEP_FINISHED_DAYS,
     MIN_UPDATE_INTERVAL_HOURS,
     REQUEST_TIMEOUT,
 )
@@ -68,6 +72,18 @@ def _interval_selector() -> NumberSelector:
             step=1,
             mode=NumberSelectorMode.BOX,
             unit_of_measurement="h",
+        )
+    )
+
+
+def _keep_days_selector() -> NumberSelector:
+    return NumberSelector(
+        NumberSelectorConfig(
+            min=MIN_KEEP_FINISHED_DAYS,
+            max=MAX_KEEP_FINISHED_DAYS,
+            step=1,
+            mode=NumberSelectorMode.BOX,
+            unit_of_measurement="d",
         )
     )
 
@@ -128,6 +144,7 @@ class LightsoutsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_UPDATE_INTERVAL_HOURS: int(
                         user_input[CONF_UPDATE_INTERVAL_HOURS]
                     ),
+                    CONF_KEEP_FINISHED_DAYS: int(user_input[CONF_KEEP_FINISHED_DAYS]),
                     CONF_TITLE_TEMPLATE: user_input.get(
                         CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE
                     ),
@@ -150,6 +167,10 @@ class LightsoutsConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     CONF_UPDATE_INTERVAL_HOURS,
                     default=DEFAULT_UPDATE_INTERVAL_HOURS,
                 ): _interval_selector(),
+                vol.Required(
+                    CONF_KEEP_FINISHED_DAYS,
+                    default=DEFAULT_KEEP_FINISHED_DAYS,
+                ): _keep_days_selector(),
                 vol.Optional(
                     CONF_TITLE_TEMPLATE, default=DEFAULT_TITLE_TEMPLATE
                 ): _title_template_selector(),
@@ -191,6 +212,7 @@ class LightsoutsOptionsFlow(OptionsFlow):
                     CONF_UPDATE_INTERVAL_HOURS: int(
                         user_input[CONF_UPDATE_INTERVAL_HOURS]
                     ),
+                    CONF_KEEP_FINISHED_DAYS: int(user_input[CONF_KEEP_FINISHED_DAYS]),
                     CONF_TITLE_TEMPLATE: user_input.get(
                         CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE
                     ),
@@ -218,6 +240,12 @@ class LightsoutsOptionsFlow(OptionsFlow):
                         CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS
                     ),
                 ): _interval_selector(),
+                vol.Required(
+                    CONF_KEEP_FINISHED_DAYS,
+                    default=current.get(
+                        CONF_KEEP_FINISHED_DAYS, DEFAULT_KEEP_FINISHED_DAYS
+                    ),
+                ): _keep_days_selector(),
                 vol.Optional(
                     CONF_TITLE_TEMPLATE,
                     default=current.get(CONF_TITLE_TEMPLATE, DEFAULT_TITLE_TEMPLATE),

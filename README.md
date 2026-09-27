@@ -8,7 +8,7 @@ Available in English and Danish.
 
 ## Install
 
-Requires Home Assistant 2024.1 or newer.
+Requires Home Assistant 2024.11 or newer.
 
 ### With HACS
 
@@ -41,6 +41,7 @@ Then choose what to show:
 | Series to include | Which of the 19 series to show. All of them by default. |
 | Session types to include | Practice, Qualifying, Sprint, Race and Other. See **Session types** below. |
 | Refresh interval (hours) | How often the calendar checks lightsouts.com for changes: 1 to 168 hours, 3 by default. |
+| Keep finished sessions (days) | How many days a session stays in the calendar after it ends: 0 to 365 days, 7 by default. With 0, a session leaves the calendar as soon as it is over. |
 | Event title template | How each event in the calendar is named. See below. |
 | Event description template | The text you see when you open an event. See below. |
 
@@ -100,6 +101,8 @@ For only the races, pick **Race**, and **Sprint** too if you want the sprint rac
 ### A calendar
 
 `calendar.lightsouts` shows every session of the series and session types you picked, in your own time zone. Add it to a **Calendar** card to see what's coming up.
+
+Sessions that are over stay in the calendar for the number of days you chose, 7 by default, so you can still see the whole race weekend after the race. lightsouts.com only lists what is still to come, so the calendar can only keep sessions it has already shown: right after you install the integration, earlier sessions are not there.
 
 Rallies such as WRC show as all-day events across the rally weekend. Long endurance races, such as the Le Mans 24 Hours, keep their real start and end times.
 
