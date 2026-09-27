@@ -153,27 +153,36 @@ class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
         )
 
         sessions: list[Session] = []
+        failed: set[str] = set()
         for slug, result in zip(slugs, results, strict=True):
             if isinstance(result, BaseException):
                 _LOGGER.warning("Failed to fetch series %s: %s", slug, result)
+                failed.add(slug)
                 continue
             sessions.extend(self._flatten_series(result))
 
-        sessions = await self._async_add_history(sessions, slugs)
+        sessions = await self._async_add_history(sessions, slugs, failed)
         allowed = self._selected_session_types
         sessions = [s for s in sessions if s.category in allowed]
         sessions.sort(key=lambda s: s.start)
         return sessions
 
     async def _async_add_history(
-        self, fetched: list[Session], slugs: list[str]
+        self, fetched: list[Session], slugs: list[str], failed: set[str]
     ) -> list[Session]:
-        """Keep sessions that have started, and add back the ones the feed dropped."""
+        """Keep every session seen, and add back started ones the feed dropped."""
         now = dt_util.utcnow()
         cutoff = now - timedelta(days=self.keep_finished_days)
-        history = {uid: s for uid, s in self._history.items() if s.end > cutoff}
-        # The feed's latest details win, for example when a session was moved.
-        history.update((s.uid, s) for s in fetched if s.start <= now and s.end > cutoff)
+        # An upcoming session is only kept while its series could not be
+        # fetched. Otherwise the feed has it, or it was cancelled or moved.
+        history = {
+            uid: s
+            for uid, s in self._history.items()
+            if s.end > cutoff and (s.start <= now or s.series_slug in failed)
+        }
+        # Saving upcoming sessions too means a weekend is kept even when no
+        # refresh ran while it was on, for example with a long interval.
+        history.update((s.uid, s) for s in fetched if s.end > cutoff)
         if history != self._history:
             self._history = history
             await self._store.async_save(
@@ -185,7 +194,7 @@ class LightsoutsCoordinator(DataUpdateCoordinator[list[Session]]):
         return fetched + [
             s
             for s in history.values()
-            if s.uid not in fetched_uids and s.series_slug in wanted
+            if s.uid not in fetched_uids and s.start <= now and s.series_slug in wanted
         ]
 
     async def _fetch_series_index(self) -> list[dict[str, Any]]:
